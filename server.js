@@ -56,16 +56,14 @@ async function fetchAllUsers() {
       const snapshot = await db.collection('users').get();
       return snapshot.docs.map(doc => doc.data());
     } catch (err) {
-      console.error('[FIREBASE ERROR] Failed to fetch users from Firestore:', err);
-      return [];
+      console.error('[FIREBASE ERROR] Failed to fetch users from Firestore, using local fallback:', err);
     }
-  } else {
-    try {
-      const data = fs.readFileSync(DB_FILE, 'utf8');
-      return JSON.parse(data);
-    } catch (err) {
-      return [];
-    }
+  }
+  try {
+    const data = fs.readFileSync(DB_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    return [];
   }
 }
 
@@ -76,15 +74,17 @@ async function saveUser(newUser) {
       // Save in Firestore collection 'users' with username (lowercase) as document ID
       await db.collection('users').doc(newUser.username.toLowerCase()).set(newUser);
       console.log(`[FIREBASE] Saved user "${newUser.username}" to Firestore.`);
+      return;
     } catch (err) {
-      console.error('[FIREBASE ERROR] Failed to write user to Firestore:', err);
-      throw err;
+      console.error('[FIREBASE ERROR] Failed to write user to Firestore, using local fallback:', err.message);
     }
-  } else {
-    const users = JSON.parse(fs.readFileSync(DB_FILE, 'utf8') || '[]');
-    users.push(newUser);
-    fs.writeFileSync(DB_FILE, JSON.stringify(users, null, 2));
   }
+  
+  // Local fallback
+  const users = JSON.parse(fs.readFileSync(DB_FILE, 'utf8') || '[]');
+  users.push(newUser);
+  fs.writeFileSync(DB_FILE, JSON.stringify(users, null, 2));
+  console.log(`[LOCAL DB] Saved user "${newUser.username}" locally.`);
 }
 
 // Helper to look up a single user
@@ -92,15 +92,15 @@ async function findUserByUsername(username) {
   if (useFirebase) {
     try {
       const doc = await db.collection('users').doc(username.toLowerCase()).get();
-      return doc.exists ? doc.data() : null;
+      if (doc.exists) return doc.data();
     } catch (err) {
-      console.error('[FIREBASE ERROR] Single lookup failed:', err);
-      return null;
+      console.error('[FIREBASE ERROR] Single lookup failed, using local fallback:', err.message);
     }
-  } else {
-    const users = JSON.parse(fs.readFileSync(DB_FILE, 'utf8') || '[]');
-    return users.find(u => u.username.toLowerCase() === username.toLowerCase()) || null;
   }
+  
+  // Local fallback
+  const users = JSON.parse(fs.readFileSync(DB_FILE, 'utf8') || '[]');
+  return users.find(u => u.username.toLowerCase() === username.toLowerCase()) || null;
 }
 
 // ==========================================

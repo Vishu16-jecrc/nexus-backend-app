@@ -9,5 +9,29 @@
     "password": "admin",
     "email": "itzop137@gmail.com",
     "createdAt": "2026-06-20T17:58:52.193Z"
+  },
+  {
+    "username": "vrinda",
+    "password": "hellohey",
+    "email": "vishusandolia@gmail.com",
+    "createdAt": "2026-06-21T18:12:58.876Z"
+  },
+  {
+    "username": "vishu",
+    "password": "hellohey",
+    "email": "vishusandolia@gmail.com",
+    "createdAt": "2026-06-22T09:20:36.582Z"
+  },
+  {
+    "username": "testuser501",
+    "password": "testpassword",
+    "email": "test@example.com",
+    "createdAt": "2026-06-22T09:43:23.946Z"
+  },
+  {
+    "username": "joy",
+    "password": "joy16",
+    "email": "vishusandolia@gmail.com",
+    "createdAt": "2026-06-22T09:51:57.182Z"
   }
 ]
